@@ -1,0 +1,5 @@
+name,type,parameter,rot_front,pre_material,tex_subpath,tex_diffuse,tex_normal,tex_transform,bounding_type,interactive_type
+box,box,10#10#10,0,0#16,0,0,0,0,BOX,STATIC
+grid,grid,80#120#60#40,0,0#2,0,0,0,0,BOX,STATIC
+sphere,sphere,1#20#20,0,0.4#22,0,0,0,0,BOX,STATIC
+cylinder,cylinder,1#1#6#15#15,0,0#21,0,0,0,0,BOX,MOVABLE

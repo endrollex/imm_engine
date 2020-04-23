@@ -1,0 +1,2 @@
+pos_x,pos_y,pos_z,num_rows,num_cols,spatial_step,time_step,speed,damping
+0,1,0,512,512,0.5,0.03,4,0.2
