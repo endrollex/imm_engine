@@ -1,5 +1,5 @@
 cl_compile.bat:
-The compile options see bat_tool\cl_compile.at
+The compile options see bat_tool\cl_compile.bat
 Modify the bat file according to the include/lib path.
 
 Setting the Path and Environment Variables for Command-Line Builds

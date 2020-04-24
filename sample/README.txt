@@ -11,4 +11,3 @@ For more infomation see Help in demo
 Configuration File:
 -------------------
 script\imm_config.lua
-
