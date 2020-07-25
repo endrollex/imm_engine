@@ -238,7 +238,7 @@ void extra_texture<T_app>::init_load(T_app *app_in)
 		std::string name = vec2d[ix][0];
 		std::wstring file = txtutil::str_to_wstr(vec2d[ix][1]);
 		std::wstring subpath = txtutil::str_to_wstr(IMM_PATH["texture"])+txtutil::str_to_wstr(vec2d[ix][2]);
-		ID3D11ShaderResourceView *diffuse_map_srv = manager.create_texture(subpath + file);
+		ID3D11ShaderResourceView *diffuse_map_srv = manager.create_texture(subpath, file);
 		texture[swatch_map(name)] = diffuse_map_srv;
 	}
 }

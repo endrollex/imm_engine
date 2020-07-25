@@ -98,15 +98,31 @@ void atomic_wstring::clear()
 	str.clear();
 }
 ////////////////
+// is_file_exist
+////////////////
+////////////////
+bool is_file_exist(std::string file)
+{
+	std::ifstream check;
+	check.open(file);
+	bool is_ok = check.good();
+    if (!is_ok) {
+		std::cout << "Not found: " << file << std::endl;
+	}
+	check.close();
+	return is_ok;
+}
+////////////////
 // m3d_util_b3m
 ////////////////
 ////////////////
-void m3d_util_b3m()
+void m3d_util_b3m_list(std::string lua_file = "m3d_utility.lua")
 {
 	// no init tex_mgr, it is dummy
+	if (!is_file_exist(lua_file)) return;
 	texture_mgr tex_mgr;
 	lua_reader l_reader;
-	l_reader.loadfile(IMM_PATH["script"]+"m3d_utility.lua");
+	l_reader.loadfile(IMM_PATH["script"]+lua_file);
 	bin_m3d model_bin;
 	std::vector<std::vector<std::string>> model_m3d;
 	l_reader.vec2d_str_from_table("csv_model_input", model_m3d);
@@ -125,13 +141,18 @@ void m3d_util_b3m()
 		skinned_model model_ski;
 		bool is_skinned = false;
 		l_reader.assign_bool(is_skinned, (*it)[2]);
+		bool is_tex_ok = true;
 		if (is_skinned) {
 			model_ski.set(nullptr, tex_mgr, IMM_PATH["input"]+(*it)[1], path_tex);
-			model_bin.write_to_bin(model_ski, IMM_PATH["output"]+(*it)[0]+".b3m");
+			is_tex_ok = model_bin.write_to_bin(model_ski, IMM_PATH["output"]+(*it)[0]+".b3m");
 		}
 		else {
 			model_bas.set(nullptr, tex_mgr, IMM_PATH["input"]+(*it)[1], path_tex);
-			model_bin.write_to_bin(model_bas, IMM_PATH["output"]+(*it)[0]+".b3m");
+			is_tex_ok = model_bin.write_to_bin(model_bas, IMM_PATH["output"]+(*it)[0]+".b3m");
+		}
+		if (!is_tex_ok) {
+			std::cout << "ERROR: " << (*it)[0]+".b3m" << " miss texture?" << std::endl;
+			return;
 		}
 		std::string m3d_name((*it)[1].begin(), (*it)[1].end());
 		std::cout << m3d_name << " exported OK" << std::endl;
@@ -141,10 +162,8 @@ void m3d_util_b3m()
 	std::cout << std::to_string(cnt) << " files completed." << std::endl;
 }
 //
-void m3d_util_b3m(std::string &m3d_name, const bool &is_skinned)
+void m3d_util_b3m(std::string m3d_name, const bool &is_skinned)
 {
-	m3d_name;
-	is_skinned;
 	texture_mgr tex_mgr;
 	bin_m3d model_bin;
 	std::wstring path_tex(txtutil::str_to_wstr(IMM_PATH["texture"]));
@@ -166,17 +185,53 @@ void m3d_util_b3m(std::string &m3d_name, const bool &is_skinned)
 		}
 	}
 	std::string b3m_name(m3d_name);
-	if (b3m_name.substr(b3m_name.size()-4) == ".m3d")
-		b3m_name = b3m_name.substr(0, b3m_name.size()-4);
+	if (b3m_name.substr(b3m_name.size()-4) == ".m3d") b3m_name = b3m_name.substr(0, b3m_name.size()-4);
+	bool is_tex_ok = true;
 	if (is_skinned) {
 		model_ski.set(nullptr, tex_mgr, IMM_PATH["input"]+m3d_name, path_tex);
-		model_bin.write_to_bin(model_ski, IMM_PATH["output"]+b3m_name+".b3m");
+		is_tex_ok = model_bin.write_to_bin(model_ski, IMM_PATH["output"]+b3m_name+".b3m");
 	}
 	else {
 		model_bas.set(nullptr, tex_mgr, IMM_PATH["input"]+m3d_name, path_tex);
-		model_bin.write_to_bin(model_bas, IMM_PATH["output"]+b3m_name+".b3m");
+		is_tex_ok = model_bin.write_to_bin(model_bas, IMM_PATH["output"]+b3m_name+".b3m");
+	}
+	if (!is_tex_ok) {
+		std::cout << "ERROR: " << m3d_name << " miss texture?" << std::endl;
+		return;
 	}
 	std::cout << m3d_name << " exported OK" << std::endl;
+}
+//
+void m3d_util_b3m_read(std::string m3d_name, ID3D11Device *device)
+{
+	texture_mgr tex_mgr;
+	tex_mgr.init(device);
+	bin_m3d model_bin;
+	basic_model model_bas;
+	skinned_model model_ski;
+	std::ifstream fin(IMM_PATH["input"]+m3d_name);
+	bool is_open = fin.is_open();
+	fin.close();
+	if (!is_open) {
+		fin.open(IMM_PATH["input"]+m3d_name+".b3m");
+		is_open = fin.is_open();
+		fin.close();
+		if (!is_open) {
+			std::cout << "ERROR: filename: " << m3d_name << " not found." << std::endl;
+			return;
+		}
+		else {
+			m3d_name += ".b3m";
+		}
+	}
+	bool is_skinned = model_bin.is_skinned(m3d_name);
+	if (is_skinned) {
+		model_bin.read_from_bin(model_ski, IMM_PATH["output"]+m3d_name, tex_mgr);
+	}
+	else {
+		model_bin.read_from_bin(model_bas, IMM_PATH["output"]+m3d_name, tex_mgr);
+	}
+	std::cout << m3d_name << " tested OK" << std::endl;
 }
 }
 #endif

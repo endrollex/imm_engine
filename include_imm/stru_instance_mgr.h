@@ -45,7 +45,6 @@ struct instance_mgr
 	void update_all_physics2(const float &dt);
 	void update_bound();
 	void update_phy_misc();
-	void update_phy_creative();
 	void update_collision(float dt);
 	void update_collision_impulse(float dt);
 	void update_collision_plane(float dt);
@@ -372,95 +371,6 @@ void instance_mgr<T_app>::update_phy_misc()
 			}
 		}
 	}
-	update_phy_creative();
-}
-//
-template <typename T_app>
-void instance_mgr<T_app>::update_phy_creative()
-{
-	if (!m_App->m_Control.is_creative_mode()) return;
-	if (m_App->m_Control.idle_time < 1.0f) return;
-	if (math::float_is_equal(m_App->m_Control.idle_time, 0.0f)) return;
-	m_App->m_Control.idle_time = 0.0f;
-	//
-	int p1 = m_App->m_Control.player1;
-	BoundingSphere p1shp;
-	XMFLOAT3 cp1 = m_BoundW.center(p1);
-	p1shp.Center = cp1;
-	float ratio = 2.5f;
-	p1shp.Radius = m_BoundW.extents_z(p1)*ratio;
-	ContainmentType contype = DISJOINT;
-	std::vector<size_t> near_box;
-	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
-		if (ix == p1) continue;
-		if (!m_Stat[ix].is_invoke_physics()) continue;
-		if (!m_BoundW.is_equal_bound(ix, p1)) continue;
-		XMFLOAT3 center = m_BoundW.center(ix);
-		contype = p1shp.Contains(XMLoadFloat3(&center));
-		if (contype == DISJOINT) continue;
-		near_box.push_back(ix);
-	}
-	bool is_align_y = false;
-	bool is_vertical = false;
-	XMFLOAT3 cix = XMFLOAT3();
-	XMFLOAT3 adj = XMFLOAT3();
-	XMFLOAT3 ext;
-	ext.x = m_BoundW.extents_x(p1);
-	ext.y = m_BoundW.extents_y(p1);
-	ext.z = m_BoundW.extents_z(p1);
-	XMFLOAT4X4 *p1world = m_Stat[p1].get_World();
-	for (auto &box: near_box) {
-		cix = m_BoundW.center(box);
-		float ydiff = 0.3f*p1shp.Radius;
-		adj.x = cix.x - cp1.x;
-		adj.z = cix.z - cp1.z;
-		adj.y = cix.y - cp1.y;
-		if (abs(adj.y) < ydiff) {
-			is_align_y = true;
-		}
-		if (abs(adj.x) > ext.x) {
-			if (abs(adj.z) > ext.z) is_align_y = false;
-		}
-		if (abs(cp1.y-cix.y-(ext.y*2.0f)) < ydiff) {
-			is_vertical = true;
-		}
-		float half_extx = ext.x*0.5f;
-		if (is_vertical && adj.x < half_extx && adj.z < half_extx) {
-			is_align_y = true;
-		}
-		if (!is_align_y) continue;
-		else break;
-	}
-	if (is_align_y) {
-		bool is_align_x;
-		if (abs(adj.x) > abs(adj.z)) is_align_x = false;
-		else is_align_x = true;
-		float gap = 0.01f;
-		if (!is_vertical && is_align_x) {
-			if (cp1.z > cix.z) adj.z += ext.z*2.0f+gap;
-			else adj.z -= ext.z*2.0f+gap;
-		}
-		if (!is_vertical && !is_align_x) {
-			if (cp1.x > cix.x) adj.x += ext.x*2.0f+gap;
-			else adj.x -= ext.x*2.0f+gap;
-		}
-		p1world->_41 += adj.x;
-		p1world->_43 += adj.z;
-		//
-		if (!is_vertical) {
-			bool is_box_on = false;
-			float ysmall = 0.1f;
-			bool is_stand_ok = false;
-			if (abs(adj.y) < ysmall) is_stand_ok = true;
-			is_box_on = m_App->m_PhyPos.is_box_on_box(p1, near_box);
-			if (is_box_on) is_stand_ok = true;
-			if (adj.y > 0.0f && !is_stand_ok) {
-				adj.y -= ext.y*2.0f;
-			}
-			p1world->_42 += adj.y;
-		}
-		m_Stat[p1].phy.intera_tp = PHY_INTERA_FIXED_AIR;
-	}
 }
 // should use octree, temporary not implement
 template <typename T_app>
@@ -483,6 +393,8 @@ void instance_mgr<T_app>::update_collision_impulse(float dt)
 		if (!m_Stat[ix].is_invoke_physics() || !m_Stat[ix2].is_invoke_physics()) continue;
 		// record sensor
 		bool is_touch = m_BoundW.intersects(ix, ix2);
+		if (m_Stat[ix].phy.intera_tp == PHY_INTERA_FIXED_LIMIT ||
+			m_Stat[ix2].phy.intera_tp == PHY_INTERA_FIXED_LIMIT) is_touch = !is_touch;
 		// if instance stand on instance, continue;
 		if (m_Stat[ix].phy.stand_on == ix2 || m_Stat[ix2].phy.stand_on == ix) continue;
 		//
@@ -507,7 +419,7 @@ void instance_mgr<T_app>::update_collision_plane(float dt)
 	if (m_PlaneLandIx < 0) return;
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
 		//
-		if (m_Stat[ix].property & INST_IS_LAND) continue;
+		if (m_Stat[ix].is_special_physics()) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
 		// physcis logic
 		int ix_land;
@@ -609,7 +521,7 @@ template <typename T_app>
 void instance_mgr<T_app>::update_collision_liquid(float dt)
 {
 	for (size_t ix = 0; ix != m_Stat.size(); ++ix) {
-		if (m_Stat[ix].property & INST_IS_LAND) continue;
+		if (m_Stat[ix].is_special_physics()) continue;
 		if (!m_Stat[ix].is_invoke_physics()) continue;
 		if (m_Stat[ix].phy.intera_tp & PHY_INTERA_FIXED) continue;
 		switch(m_BoundW.map[ix].first) {

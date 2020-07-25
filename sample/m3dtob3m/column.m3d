@@ -7,8 +7,8 @@ AnimationClips 0
 
 ----------------------------------Materials-
 Ambient: 1.0 1.0 1.0
-Diffuse: 0.64 0.64 0.64
-Specular: 0.5 0.5 0.5
+Diffuse: 1.0 1.0 1.0
+Specular: 0.0 0.0 0.0
 SpecPower: 12.298
 Reflectivity: 0.0 0.0 0.0
 AlphaClip: 0

@@ -124,7 +124,7 @@ void input_setting::reset()
 {
 	//
 	KEY_P1_JUMP          = 'C';
-	KEY_P1_WALK_RUN      = 'Q';
+	KEY_P1_WALK_RUN      = 'J';
 	KEY_P1_W             = 'W';
 	KEY_P1_A             = 'A';
 	KEY_P1_S             = 'S';

@@ -57,7 +57,6 @@ struct phy_position
 		const bool &is_touch,
 		const float &impulse_scale,
 		const size_t &ix_dmg);
-	bool is_box_on_box(const size_t &ix, const std::vector<size_t> &near_box);
 	T_app *app;
 };
 //
@@ -140,6 +139,12 @@ void phy_position<T_app>::update(
 		// phy_impulse_casual() produce fake velocity of PHY_INTERA_FIXED
 		// but not adjust PHY_INTERA_FIXED's full stand on land
 		if (prop.intera_tp & PHY_INTERA_FIXED) return;
+		if ((prop.intera_tp != PHY_INTERA_MOVABLE)) {
+			// extents_y incorrect when ori box
+			if (app->m_Inst.m_BoundW.get_type(prop.ix) == PHY_BOUND_ORI_BOX) {
+				return;
+			}
+		}
 		// stand_adjust keep object full stand on land
 		// guarantee object.intersects(land) return true, exclude if they have a little gap
 		float stand_adjust = -0.01f;
@@ -308,35 +313,29 @@ void phy_position<T_app>::impulse_casual(
 		float penetration = XMVectorGetX(XMVector3LengthEst(XMVectorSubtract(vel_A_all, vel_B_all)))*(dt/FPS60_1DIV);
 		AtoB = XMVectorScale(AtoB, 30.0f+penetration);
 	}
-	//
 	// scene boundary
-	//
+	// c_Q = XMVectorZero;
 	auto func_boundary = [&] (XMVECTOR &c_P, XMVECTOR &c_Q, XMMATRIX &w_P, phy_property &prop_P) {
-		XMVECTOR offsetP = XMVectorSubtract(w_P.r[3], c_P);
-		float penetration = XMVectorGetX(XMVector3LengthEst(XMVectorSubtract(vel_A_all, vel_B_all)))*dt;
-		XMVECTOR to_scene = XMVectorZero();
-		if (abs(XMVectorGetX(c_Q)) > 1.0f) {
-			if (XMVectorGetX(c_Q) > 0.0f) to_scene = XMVectorSetX(to_scene, -1.0f);
-			else to_scene = XMVectorSetX(to_scene, 1.0f);
-		}
-		else {
-			if (XMVectorGetZ(c_Q) > 0.0f) to_scene = XMVectorSetZ(to_scene, -1.0f);
-			else to_scene = XMVectorSetZ(to_scene, 1.0f);
-		}
+		XMVECTOR lenQ = XMVector3Length(c_Q);
+		assert(math::float_is_equal(XMVectorGetX(lenQ), 0.0f));
+		XMVECTOR offsetP = XMVectorZero();
+		float penetration = 50.0f*dt;
+		XMVECTOR to_scene = XMVectorSubtract(XMVectorZero(), c_P);
+		to_scene = XMVector3Normalize(to_scene);
 		c_P = XMVectorAdd(c_P, XMVectorScale(to_scene, penetration));
 		w_P.r[3] = XMVectorAdd(c_P, offsetP);
 		w_P.r[3] = XMVectorSetW(w_P.r[3], 1.0f);
 		app->m_SfxSelect.effect_block_task(prop_P.ix);
 	};
-	if ((aabb3_yes && relative_size >= 1.0f) && (prop_B.intera_tp == PHY_INTERA_FIXED_INVISILBE)) {
+	if ((aabb3_yes && relative_size >= 1.0f) && (prop_B.intera_tp == PHY_INTERA_FIXED_LIMIT)) {
 		func_boundary(c_A, c_B, w_A, prop_A);
 	}
-	if ((aabb3_yes && relative_size >= 1.0f) && (prop_A.intera_tp == PHY_INTERA_FIXED_INVISILBE)) {
+	if ((aabb3_yes && relative_size >= 1.0f) && (prop_A.intera_tp == PHY_INTERA_FIXED_LIMIT)) {
 		func_boundary(c_B, c_A, w_B, prop_B);
 	}
 	// big object
 	// !(relative_size < 1.0f)
-	if ((prop_B.intera_tp != PHY_INTERA_FIXED_INVISILBE) && (prop_A.intera_tp != PHY_INTERA_FIXED_INVISILBE) && 
+	if ((prop_B.intera_tp != PHY_INTERA_FIXED_LIMIT) && (prop_A.intera_tp != PHY_INTERA_FIXED_LIMIT) && 
 		(aabb3_yes && relative_size >= 1.0f)) {
 		float penetration = XMVectorGetX(XMVector3LengthEst(XMVectorSubtract(vel_A_all, vel_B_all)))*(dt/FPS60_1DIV);
 		penetration *= 2.0f;
@@ -344,16 +343,20 @@ void phy_position<T_app>::impulse_casual(
 	}
 	// store result
 	if (!(prop_B.intera_tp & PHY_INTERA_FIXED)) {
-		vel_absolute_B = XMVectorAdd(vel_absolute_B, AtoB);
-		XMStoreFloat3(&prop_B.velocity, vel_B);
-		XMStoreFloat3(&prop_B.vel_absolute, vel_absolute_B);
-		if (prop_A.intera_tp == PHY_INTERA_FIXED_INVISILBE) XMStoreFloat4x4(&world_B, w_B);
+		if (prop_A.intera_tp == PHY_INTERA_FIXED_LIMIT) XMStoreFloat4x4(&world_B, w_B);
+		else {
+			vel_absolute_B = XMVectorAdd(vel_absolute_B, AtoB);
+			XMStoreFloat3(&prop_B.velocity, vel_B);
+			XMStoreFloat3(&prop_B.vel_absolute, vel_absolute_B);
+		}
 	}
 	if (!(prop_A.intera_tp & PHY_INTERA_FIXED)) {
-		vel_absolute_A = XMVectorSubtract(vel_absolute_A, AtoB);
-		XMStoreFloat3(&prop_A.velocity, vel_A);
-		XMStoreFloat3(&prop_A.vel_absolute, vel_absolute_A);
-		if (prop_B.intera_tp == PHY_INTERA_FIXED_INVISILBE) XMStoreFloat4x4(&world_A, w_A);
+		if (prop_B.intera_tp == PHY_INTERA_FIXED_LIMIT) XMStoreFloat4x4(&world_A, w_A);
+		else {
+			vel_absolute_A = XMVectorSubtract(vel_absolute_A, AtoB);
+			XMStoreFloat3(&prop_A.velocity, vel_A);
+			XMStoreFloat3(&prop_A.vel_absolute, vel_absolute_A);
+		}
 	}
 	assert(!XMVector4IsNaN(vel_A));
 	assert(!XMVector4IsNaN(vel_B));
@@ -404,29 +407,6 @@ void phy_position<T_app>::attack_impulse(
 		prop_B.absolute_alt = static_cast<int>(impulse_scale);
 	}
 	return;
-}
-////////////////
-// phy_position::is_box_on_box
-////////////////
-////////////////
-template <typename T_app>
-bool phy_position<T_app>::is_box_on_box(const size_t &ix, const std::vector<size_t> &near_box)
-{
-	XMFLOAT3 inst_pos =  app->m_Inst.m_BoundW.center(ix);
-	float ext_y = app->m_Inst.m_BoundW.extents_y(ix);
-	ext_y *= 2.0f;
-	for (auto &box: near_box) {
-		auto &stat = app->m_Inst.m_Stat[box];
-		size_t loop_ix = stat.phy.ix;
-		bool ret = false;
-		XMFLOAT3 loop_pos = app->m_Inst.m_BoundW.center(loop_ix);
-		loop_pos.y += ext_y;
-		XMVECTOR pos_test = XMLoadFloat3(&loop_pos);
-		ContainmentType cont_type = app->m_Inst.m_BoundW.contains(ix, pos_test);
-		if (cont_type != DISJOINT) ret = true;
-		if (ret) return ret;
-	}
-	return false;
 }
 //
 }

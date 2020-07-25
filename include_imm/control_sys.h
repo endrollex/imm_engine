@@ -43,7 +43,6 @@ struct control_sys
 	void on_input_keyup(WPARAM &w_param, LPARAM &l_param);
 	void on_mouse_move(WPARAM btn_state, const int &pos_x, const int &pos_y);
 	void on_mouse_wheel(const short &z_delta);
-	bool is_creative_mode();
 	// member variable
 	T_app *app;
 	int picked1;
@@ -151,10 +150,6 @@ void control_sys<T_app>::inst_roll()
 template <typename T_app>
 void control_sys<T_app>::inst_atk_x()
 {
-	if (is_creative_mode()) {
-		app->m_Inst.m_Build.copy_player1();
-		return;
-	}
 	app->m_Inst.m_Troll[player1].order_ac|= ORDER_ATK_X;
 }
 //
@@ -355,13 +350,6 @@ void control_sys<T_app>::on_mouse_wheel(const short &z_delta)
 	idle_time = 0;
 	if (app->m_UiMgr.on_mouse_wheel(z_delta)) return;
 	cam.mouse_wheel(z_delta);
-}
-//
-template <typename T_app>
-bool control_sys<T_app>::is_creative_mode()
-{
-	if (!app->m_Inst.m_Troll[player1].is_static()) return false;
-	return app->m_Scene.is_creative;
 }
 //
 }

@@ -178,6 +178,10 @@ void damage_data::update(const float &dt)
 		is_calculated = true;
 		return;
 	}
+	if (PTR->m_Inst.m_Troll[ix_dmg].order_stat & ORDER_ST_DESTROYED) {
+		is_calculated = true;
+		return;
+	}
 	if (specify <= SKILL_MELEE_STANDARD) {
 		update_melee(dt);
 	}

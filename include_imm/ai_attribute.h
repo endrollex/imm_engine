@@ -395,6 +395,11 @@ template <typename T_app>
 bool ai_attr<T_app>::is_required_ap(const SKILL_SPECIFY &specify, const size_t &ix_atk)
 {
 	switch (specify) {
+	case SKILL_STAMINA_ROLL_FALSE:
+		points[ix_atk].ap += 6.0f;
+		if (points[ix_atk].ap > points[ix_atk].ap_max) points[ix_atk].ap = points[ix_atk].ap_max;
+		return true;
+		break;
 	case SKILL_STAMINA_ROLL:
 		if (points[ix_atk].ap < 1.0f) return false;
 		points[ix_atk].ap -= 6.0f;

@@ -104,8 +104,8 @@ void sprite_simple::build_buffer(const std::vector<std::vector<std::string>> &ge
 	D3D11_TEXTURE2D_DESC desc;
 	std::wstring tex_path = txtutil::str_to_wstr(IMM_PATH["texture"]+"avatar\\");
 	for (size_t ix = 0; ix != get_dds.size(); ++ix) {
-		std::wstring tex_path_dds = tex_path + txtutil::str_to_wstr(get_dds[ix][1]);
-		map_tex[get_dds[ix][0]] = tex_mgr.create_texture(tex_path_dds);
+		std::wstring dds_name = txtutil::str_to_wstr(get_dds[ix][1]);
+		map_tex[get_dds[ix][0]] = tex_mgr.create_texture(tex_path, dds_name);
 		// dds: 1024*1024, 1024*2048, 2048*2048
 		map_tex[get_dds[ix][0]]->GetResource(&res);
 		HR(res->QueryInterface(&texture2d));

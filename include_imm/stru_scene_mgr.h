@@ -219,7 +219,7 @@ void scene_mgr<T_app>::reload(const std::wstring &scene_ix_in)
 		is_show_logo = false;
 		app->m_Cmd.input_loading.assign(map_loading[scene_ix].text);
 		app->m_Cmd.back_color = Colors::Black;
-		app->m_Cmd.chage_loading_font_factor(app->m_Cmd.font_factor*2.0f);
+		app->m_Cmd.change_loading_font_factor(app->m_Cmd.font_factor*2.0f);
 	}
 }
 //
@@ -316,9 +316,9 @@ void scene_mgr<T_app>::relaod_after_instance_build()
 		float height = terrain1.get_Height(world->_41, world->_43) + extents_y*2.0f;
 		if (world->_42 < height) world->_42 = height+1.0f;
 	}
-	// PHY_INTERA_FIXED_INVISILBE
+	// PHY_INTERA_INVISIBLE
 	for (auto &inst: app->m_Inst.m_Stat) {
-		if (inst.phy.intera_tp == PHY_INTERA_FIXED_INVISILBE) inst.set_IsTransparent(true);
+		if (inst.phy.intera_tp & PHY_INTERA_INVISIBLE) inst.set_IsTransparent(true);
 	}
 }
 template <typename T_app>

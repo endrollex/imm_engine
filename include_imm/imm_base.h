@@ -11,6 +11,7 @@
 #include <string>
 #include <d2d1_1.h>
 #include "util_basic.h"
+#include <imm.h>
 namespace imm
 {
 ////////////////
@@ -119,6 +120,7 @@ base_win<DERIVED_TYPE>::base_win():
 {
 	IMM_PATH_init();
 	ZeroMemory(&m_ScreenViewport, sizeof(D3D11_VIEWPORT));
+	ImmDisableIME(0xffffffff);
 }
 //
 template <class DERIVED_TYPE>

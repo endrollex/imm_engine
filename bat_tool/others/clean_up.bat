@@ -5,4 +5,5 @@ del *.idb
 del *.exp
 del *.lib
 del *.suo
+del *.pdb
 pause

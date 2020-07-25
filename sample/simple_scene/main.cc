@@ -14,6 +14,7 @@
 #include "ai_skill_pool.cc"
 //
 #pragma comment(lib, "User32")
+#pragma comment(lib, "Imm32")
 #pragma comment(lib, "d3d11")
 #pragma comment(lib, "D2d1")
 #pragma comment(lib, "Dwrite")

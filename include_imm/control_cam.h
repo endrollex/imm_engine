@@ -292,14 +292,9 @@ bool control_cam<T_app>::is_restrict()
 template <typename T_app>
 void control_cam<T_app>::rebuild_setting()
 {
-	if (is_restrict()) {
-		follow_walk = follow_walk_min;
-		follow_up = follow_up_def2;
-	}
-	else {
-		follow_walk = follow_walk_def;
-		follow_up = follow_up_def2;
-	}
+	if (is_restrict()) follow_walk = follow_walk_min;
+	else follow_walk = follow_walk_def;
+	follow_up = follow_up_def_value();
 }
 //
 template <typename T_app>

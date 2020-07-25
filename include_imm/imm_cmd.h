@@ -52,7 +52,7 @@ struct cmd_shell
 	void draw_d3d_loading();
 	void do_slient_on();
 	void ascii_loading_predefined();
-	void chage_loading_font_factor(const float &font_f);
+	void change_loading_font_factor(const float &font_f);
 	bool is_waiting_for_something();
 };
 //
@@ -361,7 +361,7 @@ void cmd_shell<T_app>::ascii_loading_predefined()
 }
 //
 template <typename T_app>
-void cmd_shell<T_app>::chage_loading_font_factor(const float &font_f)
+void cmd_shell<T_app>::change_loading_font_factor(const float &font_f)
 {
 	dwrite_loading.m_FontFactor = font_f;
 	on_resize();

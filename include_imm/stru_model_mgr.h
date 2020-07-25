@@ -70,6 +70,7 @@ struct instance_stat
 	void set_SwatchTex(const SWATCH_TEXTURE &tex_type_in, const float &duration, ID3D11ShaderResourceView* resource);
 	bool is_alpha();
 	bool is_invoke_physics();
+	bool is_special_physics();
 	bool is_in_switch_clip();
 	bool is_in_frustum();
 	bool get_IsInFrustum();
@@ -290,6 +291,13 @@ bool instance_stat::is_invoke_physics()
 	return true;
 }
 //
+bool instance_stat::is_special_physics()
+{
+	if (property & INST_IS_LAND) return true;
+	if (phy.intera_tp & PHY_INTERA_FIXED_LIMIT) return true;
+	return false;
+}
+//
 bool instance_stat::is_in_switch_clip()
 {
 	if (type != MODEL_SKINNED) return false;
@@ -438,11 +446,10 @@ void model_mgr::pntt_init(ID3D11Device *device, lua_reader &l_reader)
 		model_rot_front[model_name] = rotation_xyz(vec2d_model[ix][3]);
 		std::wstring tex_subpath = txtutil::str_to_wstr(vec2d_model[ix][5]);
 		std::wstring tex_diffuse(vec2d_model[ix][6].begin(), vec2d_model[ix][6].end());
-		tex_diffuse = path_tex+tex_subpath+tex_diffuse;
+		std::wstring tex_location = path_tex + tex_subpath;
 		std::wstring tex_normal(vec2d_model[ix][7].begin(), vec2d_model[ix][7].end());
-		tex_normal = path_tex+tex_subpath+tex_normal;
 		model_is_tex[model_name] = !csv_value_is_empty(vec2d_model[ix][6]);
-		m_PNTT["default"].set_MapSRV(m_TexMgr, tex_diffuse, tex_normal, model_is_tex[model_name]);
+		m_PNTT["default"].set_MapSRV(m_TexMgr, tex_location, tex_diffuse, tex_normal, model_is_tex[model_name]);
 		model_tex_trans[model_name] = vec2d_model[ix][8];
 		m_PNTT["default"].m_NameBoundType[model_name] = phy_bound_type_str(vec2d_model[ix][9]);
 		m_PNTT["default"].m_NameInteractiveType[model_name] = phy_interactive_type_str(vec2d_model[ix][10]);

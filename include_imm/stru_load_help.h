@@ -171,14 +171,14 @@ void model_load_csv_basic(
 		rot_front[model_name] = rotation_xyz(csv_model[ix][3]);
 		// load model
 		if (model.count(model_name)) continue;
-		std::wstring texture_path_full = texture_path+txtutil::str_to_wstr(subpath);
+		std::wstring tex_location = texture_path+txtutil::str_to_wstr(subpath);
 		if (model_file.substr(model_file.size()-3) == "m3d") {
-			model[model_name].set(device, tex_mgr, model_file, texture_path_full);
+			model[model_name].set(device, tex_mgr, model_file, tex_location);
 		}
 		else {
 			bin_m3d model_bin;
-			model_bin.read_from_bin(model[model_name], model_file);
-			model[model_name].set(device, tex_mgr, texture_path_full);
+			model_bin.read_from_bin(model[model_name], model_file, tex_mgr);
+			model[model_name].set(device, tex_mgr, tex_location);
 		}
 		model[model_name].m_IsAlpha = (stoi(csv_model[ix][4]) != 0);
 		model[model_name].m_BoundType = phy_bound_type_str(csv_model[ix][5]);
@@ -221,58 +221,89 @@ struct bin_m3d
 {
 	bin_m3d();
 	template <typename T_model>
-	void set_bin_info_basic(const T_model &model);
-	void set_bin_info(const basic_model &model);
-	void set_bin_info(const skinned_model &model);
+	bool set_bin_info_basic(const T_model &model);
+	bool set_bin_info(const basic_model &model);
+	bool set_bin_info(const skinned_model &model);
 	//
 	template <typename T_model>
 	void write_to_bin_basic(T_model &model, std::ofstream &outfile);
-	void write_to_bin(basic_model &model, const std::string &file_name);
-	void write_to_bin(skinned_model &model, const std::string &file_name);
+	template <typename T_model>
+	void write_to_bin_tex(T_model &model, std::ofstream &outfile);
+	bool write_to_bin(basic_model &model, const std::string &file_name);
+	bool write_to_bin(skinned_model &model, const std::string &file_name);
 	//
 	template <typename T_model>
 	void read_from_bin_basic(T_model &model, const std::string &file_name, std::ifstream &infile);
-	void read_from_bin(basic_model &model, const std::string &file_name);
-	void read_from_bin(skinned_model &model, const std::string &file_name);
+	template <typename T_model>
+	void read_from_bin_tex(T_model &model, texture_mgr &tex_mgr, std::ifstream &infile);
+	void read_from_bin(basic_model &model, const std::string &file_name, texture_mgr &tex_mgr);
+	void read_from_bin(skinned_model &model, const std::string &file_name, texture_mgr &tex_mgr);
+	bool is_skinned(const std::string &file_name);
 	//
-	std::vector<int> bin_info;
+	std::vector<size_t> bin_info;
+	size_t tex_begin;
+	size_t key1_pos;
+	size_t key1;
 };
 //
 bin_m3d::bin_m3d():
-	bin_info(10, 0)
+	bin_info(256, 0),
+	tex_begin(32),
+	key1_pos(8),
+	key1(450543252)
 {
 	;
 }
 //
 template <typename T_model>
-void bin_m3d::set_bin_info_basic(const T_model &model)
+bool bin_m3d::set_bin_info_basic(const T_model &model)
 {
+	bool is_tex_ok = true;
 	// binary offset
-	bin_info[0] = static_cast<int>(sizeof(model.m_Mat[0])*model.m_Mat.size());
-	bin_info[1] = static_cast<int>(sizeof(model.m_Vertices[0])*model.m_Vertices.size());
-	bin_info[2] = static_cast<int>(sizeof(model.m_Indices[0])*model.m_Indices.size());
-	bin_info[3] = static_cast<int>(sizeof(model.m_Subsets[0])*model.m_Subsets.size());
+	bin_info[0] = sizeof(model.m_Mat[0])*model.m_Mat.size();
+	bin_info[1] = sizeof(model.m_Vertices[0])*model.m_Vertices.size();
+	bin_info[2] = sizeof(model.m_Indices[0])*model.m_Indices.size();
+	bin_info[3] = sizeof(model.m_Subsets[0])*model.m_Subsets.size();
 	// vector string
-	bin_info[4] = static_cast<int>(model.m_Tex.size());
+	bin_info[4] = model.m_Tex.size();
+	bin_info[key1_pos] = key1;
+	// tex
+	std::ifstream infile;
+	size_t tex_pos = tex_begin;
+	size_t len = model.m_Tex.size();
+	for (size_t ix = 0; ix != len; ++ix) {
+		std::string tex_path = IMM_PATH["texture"]+model.m_Tex[ix];
+		infile.open(tex_path, std::ifstream::binary);
+		is_tex_ok = infile.is_open();
+		if (!is_tex_ok) return false;
+		size_t length = 0;
+		infile.seekg(0, infile.end);
+		length = infile.tellg();
+		infile.close();
+		bin_info[tex_pos] = length;
+		tex_pos++;
+	}
+	return is_tex_ok;
 }
 //
-void bin_m3d::set_bin_info(const basic_model &model)
+bool bin_m3d::set_bin_info(const basic_model &model)
 {
-	set_bin_info_basic(model);
+	bool is_tex_ok = set_bin_info_basic(model);
+	return is_tex_ok;
 }
 //
-void bin_m3d::set_bin_info(const skinned_model &model)
+bool bin_m3d::set_bin_info(const skinned_model &model)
 {
-	set_bin_info_basic(model);
+	bool is_tex_ok = set_bin_info_basic(model);
+	if (!is_tex_ok) return false;
 	// skinned_data
 	bin_info[5] =
-		static_cast<int>(sizeof(model.m_SkinnedData.m_BoneHierarchy[0])
-		*model.m_SkinnedData.m_BoneHierarchy.size());
+		sizeof(model.m_SkinnedData.m_BoneHierarchy[0])*model.m_SkinnedData.m_BoneHierarchy.size();
 	bin_info[6] =
-		static_cast<int>(sizeof(model.m_SkinnedData.m_BoneOffsets[0])
-		*model.m_SkinnedData.m_BoneOffsets.size());
+		sizeof(model.m_SkinnedData.m_BoneOffsets[0])*model.m_SkinnedData.m_BoneOffsets.size();
 	bin_info[7] =
-		static_cast<int>(model.m_SkinnedData.m_Animations.size());
+		model.m_SkinnedData.m_Animations.size();
+	return true;
 }
 //
 template <typename T_model>
@@ -291,9 +322,30 @@ void bin_m3d::write_to_bin_basic(T_model &model, std::ofstream &outfile)
 	}
 }
 //
-void bin_m3d::write_to_bin(basic_model &model, const std::string &file_name)
+template <typename T_model>
+void bin_m3d::write_to_bin_tex(T_model &model, std::ofstream &outfile)
 {
-	set_bin_info(model);
+	std::ifstream infile;
+	size_t tex_pos = tex_begin;
+	size_t len = model.m_Tex.size();
+	for (size_t ix = 0; ix != len; ++ix) {
+		std::string tex_path = IMM_PATH["texture"]+model.m_Tex[ix];
+		infile.open(tex_path, std::ifstream::binary);
+		assert(infile.is_open());
+		size_t length = bin_info[tex_pos];
+		uint8_t *buffer = new uint8_t[length];
+		infile.read((char*)buffer, length);
+		outfile.write((char*)buffer, length);
+		infile.close();
+		delete[] buffer;
+		tex_pos++;
+	}
+}
+//
+bool bin_m3d::write_to_bin(basic_model &model, const std::string &file_name)
+{
+	bool is_tex_ok = set_bin_info(model);
+	if (!is_tex_ok) return false;
 	std::ofstream outfile (file_name, std::ofstream::binary);
 	if (!outfile.is_open()) {
 		std::string err_str(".bm3 write fail: ");
@@ -301,12 +353,15 @@ void bin_m3d::write_to_bin(basic_model &model, const std::string &file_name)
 		ERROR_MESA(err_str.c_str());
 	}
 	write_to_bin_basic(model, outfile);
+	write_to_bin_tex(model, outfile);
 	outfile.close();
+	return is_tex_ok;
 }
 //
-void bin_m3d::write_to_bin(skinned_model &model, const std::string &file_name)
+bool bin_m3d::write_to_bin(skinned_model &model, const std::string &file_name)
 {
-	set_bin_info(model);
+	bool is_tex_ok = set_bin_info(model);
+	if (!is_tex_ok) return false;
 	std::ofstream outfile (file_name, std::ofstream::binary);
 	if (!outfile.is_open()) {
 		std::string err_str(".bm3 write fail: ");
@@ -339,18 +394,20 @@ void bin_m3d::write_to_bin(skinned_model &model, const std::string &file_name)
 					it->second.bone_animations[ix].keyframes.size());
 		}
 	}
+	write_to_bin_tex(model, outfile);
 	outfile.close();
+	return is_tex_ok;
 }
 //
 template <typename T_model>
 void bin_m3d::read_from_bin_basic(T_model &model, const std::string &file_name, std::ifstream &infile)
 {
 	// bin_info size
-	int size = static_cast<int>(sizeof(int)*bin_info.size());
+	size_t size = sizeof(size_t)*bin_info.size();
 	infile.read(reinterpret_cast<char*>(&bin_info[0]), size);
 	// check file
-	if (bin_info[8] != 0 || bin_info[9] != 0) {
-		std::string err_str(".bm3 file load error: ");
+	if (bin_info[key1_pos] != key1) {
+		std::string err_str(".b3m file load error: ");
 		err_str += file_name;
 		ERROR_MESA(err_str.c_str());
 	}
@@ -380,7 +437,27 @@ void bin_m3d::read_from_bin_basic(T_model &model, const std::string &file_name, 
 	}
 }
 //
-void bin_m3d::read_from_bin(basic_model &model, const std::string &file_name)
+template <typename T_model>
+void bin_m3d::read_from_bin_tex(T_model &model, texture_mgr &tex_mgr, std::ifstream &infile)
+{
+	size_t ix = tex_begin;
+	size_t size_info = bin_info.size();
+	while (bin_info[ix] != 0 && ix < size_info) {
+		size_t length = bin_info[ix];
+		uint8_t *buffer = new uint8_t[length];
+		infile.read((char*)buffer, length);
+		std::wstring tex_name(txtutil::str_to_wstr(model.m_Tex[ix-tex_begin]));
+		auto ptr = tex_mgr.create_texture(tex_name, buffer, length);
+		assert(ptr != nullptr);
+		delete[] buffer;
+		ix++;
+	}
+	size_t siez_tex = model.m_Tex.size();
+	size_t size_info_tex = ix-tex_begin;
+	assert(siez_tex == size_info_tex);
+}
+//
+void bin_m3d::read_from_bin(basic_model &model, const std::string &file_name, texture_mgr &tex_mgr)
 {
 	std::ifstream infile(file_name, std::ifstream::binary);
 	if (!infile.is_open()) {
@@ -389,10 +466,11 @@ void bin_m3d::read_from_bin(basic_model &model, const std::string &file_name)
 		ERROR_MESA(err_str.c_str());
 	}
 	read_from_bin_basic(model, file_name, infile);
+	read_from_bin_tex(model, tex_mgr, infile);
 	infile.close();
 }
 //
-void bin_m3d::read_from_bin(skinned_model &model, const std::string &file_name)
+void bin_m3d::read_from_bin(skinned_model &model, const std::string &file_name, texture_mgr &tex_mgr)
 {
 	std::ifstream infile(file_name, std::ifstream::binary);
 	if (!infile.is_open()) {
@@ -402,7 +480,7 @@ void bin_m3d::read_from_bin(skinned_model &model, const std::string &file_name)
 		ERROR_MESA(err_str.c_str());
 	}
 	read_from_bin_basic(model, file_name, infile);
-	int size = bin_info[5];
+	size_t size = bin_info[5];
 	model.m_SkinnedData.m_BoneHierarchy.resize(
 		size/sizeof(model.m_SkinnedData.m_BoneHierarchy[0]));
 	infile.read(reinterpret_cast<char*>(&model.m_SkinnedData.m_BoneHierarchy[0]), size);
@@ -436,7 +514,30 @@ void bin_m3d::read_from_bin(skinned_model &model, const std::string &file_name)
 		model.m_SkinnedData.m_Animations.insert(
 				std::pair<std::string, animation_clip>(clip_name, clip));
 	}
+	read_from_bin_tex(model, tex_mgr, infile);
 	infile.close();
+}
+//
+bool bin_m3d::is_skinned(const std::string &file_name)
+{
+	std::ifstream infile(file_name, std::ifstream::binary);
+	if (!infile.is_open()) {
+		std::string err_str(".bm3 file not found: ");
+		err_str += file_name;
+		ERROR_MESA(err_str.c_str());
+	}
+	//
+	size_t size = sizeof(size_t)*bin_info.size();
+	infile.read(reinterpret_cast<char*>(&bin_info[0]), size);
+	// check file
+	if (bin_info[key1_pos] != key1) {
+		std::string err_str(".bm3 file load error: ");
+		err_str += file_name;
+		ERROR_MESA(err_str.c_str());
+	}
+	infile.close();
+	if (bin_info[5] != 0) return true;
+	return false;
 }
 }
 #endif

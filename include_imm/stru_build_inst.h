@@ -61,7 +61,7 @@ bool inst_build<T_app>::inst_dump()
 	for (auto &stat: app->m_Inst.m_Stat) {
 		++index;
 		if (stat.type != MODEL_SIMPLE_P) continue;
-		if (stat.phy.intera_tp & PHY_INTERA_FIXED_INVISILBE) continue;
+		if (stat.phy.intera_tp & PHY_INTERA_FIXED_INVIS) continue;
 		vindex.push_back(index);
 		if (model.find(*stat.get_ModelName()) == model.end()) model.insert(*stat.get_ModelName());
 		csvdata.push_back(std::string());

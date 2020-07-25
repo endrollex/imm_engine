@@ -183,23 +183,36 @@ void phy_set_box_offset(T_bound &bbox, const std::vector<float> &offset, const b
 ////////////////
 enum PHY_INTERACTIVE_TYPE
 {
-	PHY_INTERA_DUMMY           = 0x0, // not use
-	PHY_INTERA_FIXED           = 0x1,
-	PHY_INTERA_NO_BOUND        = 0x2, // not use
-	PHY_INTERA_STATIC          = 0x4,
-	PHY_INTERA_FIXED_INVISILBE = 0x9,
-	PHY_INTERA_MOVABLE         = 0x10,
-	PHY_INTERA_FIXED_AIR       = 0x21,
+	PHY_INTERA_DUMMY       = 0x0, // not use
+	PHY_INTERA_FIXED       = 0x1,
+	PHY_INTERA_NO_BOUND    = 0x2, // not use
+	PHY_INTERA_STATIC      = 0x4,
+	PHY_INTERA_INVISIBLE   = 0x8, // only attr
+	PHY_INTERA_FIXED_INVIS = 0x9, // not use
+	PHY_INTERA_MOVABLE     = 0x14,
+	PHY_INTERA_FIXED_AIR   = 0x21,
+	PHY_INTERA_FIXED_LIMIT = 0x89,
 };
+/*
+0x00 0000 0000 DUMMY
+0x01 0000 0001 FIXED
+0x02 0000 0010 NO_BOUND
+0x04 0000 0100 STATIC
+0x08 0000 1000 INVISIBLE
+0x09 0000 1001 FIXED_INVIS
+0x14 0001 0100 MOVABLE
+0x21 0010 0001 FIXED_AIR
+0x89 1000 1001 FIXED_LIMIT
+*/
 //
 PHY_INTERACTIVE_TYPE phy_interactive_type_str(const std::string &str)
 {
 	if (str == "FIXED") return PHY_INTERA_FIXED;
-	if (str == "NO_BOUND") return PHY_INTERA_NO_BOUND;
 	if (str == "STATIC") return PHY_INTERA_STATIC;
-	if (str == "FIXED_INVISILBE") return PHY_INTERA_FIXED_INVISILBE;
+	if (str == "FIXED_INVIS") return PHY_INTERA_FIXED_INVIS;
 	if (str == "MOVABLE") return PHY_INTERA_MOVABLE;
-	if (str == "PHY_INTERA_FIXED_AIR") return PHY_INTERA_FIXED_AIR;
+	if (str == "FIXED_AIR") return PHY_INTERA_FIXED_AIR;
+	if (str == "FIXED_LIMIT") return PHY_INTERA_FIXED_LIMIT;
 	ERROR_MESA("PHY_INTERACTIVE_TYPE error");
 }
 ////////////////
@@ -534,9 +547,6 @@ bool phy_bound_mgr<T_app>::intersects_phy_stand(const size_t &ixA, const size_t 
 	switch(map[ixA].first) {
 	case PHY_BOUND_BOX:
 		boxA = bd0[map[ixA].second];
-		boxA.Extents.x *= 0.8;
-		boxA.Extents.y *= 0.8;
-		boxA.Extents.z *= 0.8;
 		centerB.y = boxA.Center.y;
 		CB = XMLoadFloat3(&centerB);
 		contype = boxA.Contains(CB);

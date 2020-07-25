@@ -262,7 +262,7 @@ void ai_probe<T_app>::update(const float &dt)
 template <typename T_app>
 void ai_probe<T_app>::close_test(const size_t &ix_probe, const size_t &ix_object)
 {
-	if (app->m_Inst.m_Stat[ix_object].property & INST_IS_LAND) return;
+	if (app->m_Inst.m_Stat[ix_object].is_special_physics()) return;
 	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;
 	bool is_close = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].CloseW);
 	app->m_Inst.m_Steering[ix_probe].close[ix_object] = is_close;
@@ -271,7 +271,7 @@ void ai_probe<T_app>::close_test(const size_t &ix_probe, const size_t &ix_object
 template <typename T_app>
 void ai_probe<T_app>::alert_test(const size_t &ix_probe, const size_t &ix_object)
 {
-	if (app->m_Inst.m_Stat[ix_object].property & INST_IS_LAND) return;
+	if (app->m_Inst.m_Stat[ix_object].is_special_physics()) return;
 	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;
 	if (~app->m_Inst.m_Stat[ix_object].property & INST_IS_CONTROLLABLE) return;
 	bool is_alert = app->m_Inst.m_BoundW.intersects(ix_object, geometry[ix_probe].AlertW);
@@ -288,7 +288,7 @@ void ai_probe<T_app>::obstacle_avoid_candidate(
 		float &radius_obj)
 {
 	// phy_obstacle_avoid
-	if (app->m_Inst.m_Stat[ix_object].property & INST_IS_LAND) return;
+	if (app->m_Inst.m_Stat[ix_object].is_special_physics()) return;
 	if (!app->m_Inst.m_Stat[ix_object].is_invoke_physics()) return;
 	if (app->m_Inst.m_Stat[ix_object].property & INST_IS_CONTROLLABLE) return;
 	float radius_test = (app->m_Inst.m_BoundW.extents_x(ix_object)+app->m_Inst.m_BoundW.extents_z(ix_object))*0.5f;

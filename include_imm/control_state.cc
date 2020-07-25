@@ -280,6 +280,7 @@ void pose_Roll::execute(troll *tro)
 			}
 			if (tro->order_ac & ORDER_MOVE_WASD) {
 				if (!math2::key_move_wasd(tro->index, tro->A.speed_Roll)) {
+					PTR->m_AiAttr.is_required_ap(SKILL_STAMINA_ROLL_FALSE, tro->index);
 					tro->change_state(pose_Idle::instance());
 					return;
 				}
@@ -289,6 +290,7 @@ void pose_Roll::execute(troll *tro)
 					math2::pad_move_toward(tro->index, tro->A.speed_Roll);
 				}
 				else {
+					PTR->m_AiAttr.is_required_ap(SKILL_STAMINA_ROLL_FALSE, tro->index);
 					tro->change_state(pose_Idle::instance());
 					return;
 				}

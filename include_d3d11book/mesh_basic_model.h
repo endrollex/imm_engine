@@ -139,9 +139,10 @@ class simple_model: public basic_model
 	void set_SingleSubset();
 	void set_MapSRV(
 		texture_mgr &tex_mgr,
-		const std::wstring diffuse_file,
-		const std::wstring normal_file,
-		const bool is_texture = false);
+		std::wstring tex_path,
+		std::wstring diffuse_file,
+		std::wstring normal_file,
+		bool is_texture = false);
 };
 ////////////////
 // simple_model_instance
@@ -216,15 +217,16 @@ void simple_model<vertex_type>::set_SingleSubset()
 template <typename vertex_type>
 void simple_model<vertex_type>::set_MapSRV(
 	texture_mgr &tex_mgr,
-	const std::wstring diffuse_file,
-	const std::wstring normal_file,
-	const bool is_texture)
+	std::wstring tex_path,
+	std::wstring diffuse_file,
+	std::wstring normal_file,
+	bool is_texture)
 {
 	ID3D11ShaderResourceView *diffuse_map_srv = nullptr;
 	ID3D11ShaderResourceView *normal_map_srv = nullptr;
 	if (is_texture) {
-		diffuse_map_srv = tex_mgr.create_texture(diffuse_file);
-		normal_map_srv = tex_mgr.create_texture(normal_file);
+		diffuse_map_srv = tex_mgr.create_texture(tex_path, diffuse_file);
+		normal_map_srv = tex_mgr.create_texture(tex_path, normal_file);
 	}
 	m_DiffuseMapSRV.push_back(diffuse_map_srv);
 	m_NormalMapSRV.push_back(normal_map_srv);

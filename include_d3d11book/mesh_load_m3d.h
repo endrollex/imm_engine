@@ -66,7 +66,8 @@ public:
 	texture_mgr();
 	~texture_mgr();
 	void init(ID3D11Device *device);
-	ID3D11ShaderResourceView *create_texture(std::wstring filename);
+	ID3D11ShaderResourceView *create_texture(std::wstring tex_path, std::wstring filename);
+	ID3D11ShaderResourceView *create_texture(std::wstring filename, uint8_t *buffer, const size_t &length);
 private:
 	texture_mgr(const texture_mgr &rhs);
 	texture_mgr &operator=(const texture_mgr &rhs);
