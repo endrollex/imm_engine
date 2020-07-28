@@ -42,9 +42,9 @@ std::string sfx::Whoosh      = "whoosh";
 void IMM_PATH_init()
 {
 	IMM_PATH["shader"]  = "shader\\";
-	IMM_PATH["model"]   = "model\\";
-	IMM_PATH["texture"] = "texture\\";
-	IMM_PATH["media"]   = "media\\";
+	IMM_PATH["model"]   = "asset\\";
+	IMM_PATH["texture"] = "asset\\";
+	IMM_PATH["media"]   = "asset\\media\\";
 	IMM_PATH["script"]  = "script\\";
 	IMM_PATH["output"]  = "script\\m3d_input_output\\";
 	IMM_PATH["input"]   = "script\\m3d_input_output\\";

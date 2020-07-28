@@ -66,10 +66,12 @@ int main(int argc, char* argv[])
 				std::cout << "ERROR: Please specify .m3d filename." << std::endl;
 				return 0;
 			}
+			std::string out_name = "";
+			if (argc > 3) out_name = argv[3];
 			bool is_skinned = false;
 			if (argv1 == "/skinned") is_skinned = true;
 			std::string m3d_name = argv[2];
-			imm::m3d_util_b3m(m3d_name, is_skinned);
+			imm::m3d_util_b3m(m3d_name, is_skinned, out_name);
 			cout_spend_time(time1);
 			return 0;
 		}
@@ -90,12 +92,12 @@ int main(int argc, char* argv[])
 		std::cout << "M3D to B3M Tool" << bit_version << std::endl;
 		std::cout << "immature engine Utility" << std::endl;
 		std::cout << std::endl;
-		std::cout << "Usage: m3dtob3m <options> <.m3d_filename>" << std::endl;
+		std::cout << "Usage: m3dtob3m <option> <file1> <file2>" << std::endl;
 		std::cout << std::endl;
-		std::cout << "    /lua            use m3d_utility.lua and m3d_list.csv declare which files to convert"<< std::endl;
-		std::cout << "    /basic          convert signle basic .m3d file to .b3m file" << std::endl;
-		std::cout << "    /skinned        convert signle skinned .m3d file to .b3m file" << std::endl;
-		std::cout << "    /test           test .b3m file" << std::endl;
+		std::cout << "    /lua            use <m3d_utility.lua> declare which files to convert"<< std::endl;
+		std::cout << "    /basic          convert signle basic <input.m3d> to <output.b3m>" << std::endl;
+		std::cout << "    /skinned        convert signle skinned <input.m3d> to <output.b3m>" << std::endl;
+		std::cout << "    /test           test <input.b3m>" << std::endl;
 	}
 	return 0;
 }

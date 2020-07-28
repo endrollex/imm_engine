@@ -26,8 +26,8 @@ struct sfx_select
 {
 	sfx_select();
 	void init(T_app *app_in);
-	void update();
-	void update_block();
+	void update(float dt);
+	void update_block(float dt);
 	void play_effect(
 		const SKILL_SPECIFY &skill,
 		const size_t &ix1,
@@ -89,19 +89,18 @@ void sfx_select<T_app>::play_effect(
 }
 //
 template <typename T_app>
-void sfx_select<T_app>::update()
+void sfx_select<T_app>::update(float dt)
 {
-	update_block();
+	update_block(dt);
 }
 //
 template <typename T_app>
-void sfx_select<T_app>::update_block()
+void sfx_select<T_app>::update_block(float dt)
 {
 	for (auto &task: block) {
 		app->m_Scene.plasma.push_back(PLASMA_BLOCK, 0.1f, task.center);
 	}
 	block.clear();
-	float dt = app->m_Timer.delta_time();
 	for (auto &cd: block_cd) {
 		if (cd.second > 0.0f) cd.second -= dt;
 	}

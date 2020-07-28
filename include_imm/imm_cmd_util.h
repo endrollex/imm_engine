@@ -142,27 +142,28 @@ void m3d_util_b3m_list(std::string lua_file = "m3d_utility.lua")
 		bool is_skinned = false;
 		l_reader.assign_bool(is_skinned, (*it)[2]);
 		bool is_tex_ok = true;
+		std::string out_b3m = IMM_PATH["output"]+(*it)[0]+".b3m";
 		if (is_skinned) {
 			model_ski.set(nullptr, tex_mgr, IMM_PATH["input"]+(*it)[1], path_tex);
-			is_tex_ok = model_bin.write_to_bin(model_ski, IMM_PATH["output"]+(*it)[0]+".b3m");
+			is_tex_ok = model_bin.write_to_bin(model_ski, out_b3m);
 		}
 		else {
 			model_bas.set(nullptr, tex_mgr, IMM_PATH["input"]+(*it)[1], path_tex);
-			is_tex_ok = model_bin.write_to_bin(model_bas, IMM_PATH["output"]+(*it)[0]+".b3m");
+			is_tex_ok = model_bin.write_to_bin(model_bas, out_b3m);
 		}
 		if (!is_tex_ok) {
 			std::cout << "ERROR: " << (*it)[0]+".b3m" << " miss texture?" << std::endl;
 			return;
 		}
 		std::string m3d_name((*it)[1].begin(), (*it)[1].end());
-		std::cout << m3d_name << " exported OK" << std::endl;
+		std::cout << m3d_name << " to " << (*it)[0]+".b3m" <<  " exported OK" << std::endl;
 		++cnt;
 		++it;
 	}
 	std::cout << std::to_string(cnt) << " files completed." << std::endl;
 }
 //
-void m3d_util_b3m(std::string m3d_name, const bool &is_skinned)
+void m3d_util_b3m(std::string m3d_name, const bool &is_skinned, std::string out_name = "")
 {
 	texture_mgr tex_mgr;
 	bin_m3d model_bin;
@@ -180,58 +181,58 @@ void m3d_util_b3m(std::string m3d_name, const bool &is_skinned)
 			std::cout << "ERROR: filename: " << m3d_name << " not found." << std::endl;
 			return;
 		}
-		else {
-			m3d_name += ".m3d";
-		}
+		else m3d_name += ".m3d";
 	}
 	std::string b3m_name(m3d_name);
+	if (out_name != "") b3m_name = out_name;
 	if (b3m_name.substr(b3m_name.size()-4) == ".m3d") b3m_name = b3m_name.substr(0, b3m_name.size()-4);
+	b3m_name += ".b3m";
 	bool is_tex_ok = true;
+	std::string out_b3m = IMM_PATH["output"]+b3m_name;
 	if (is_skinned) {
 		model_ski.set(nullptr, tex_mgr, IMM_PATH["input"]+m3d_name, path_tex);
-		is_tex_ok = model_bin.write_to_bin(model_ski, IMM_PATH["output"]+b3m_name+".b3m");
+		is_tex_ok = model_bin.write_to_bin(model_ski, out_b3m);
 	}
 	else {
 		model_bas.set(nullptr, tex_mgr, IMM_PATH["input"]+m3d_name, path_tex);
-		is_tex_ok = model_bin.write_to_bin(model_bas, IMM_PATH["output"]+b3m_name+".b3m");
+		is_tex_ok = model_bin.write_to_bin(model_bas, out_b3m);
 	}
 	if (!is_tex_ok) {
 		std::cout << "ERROR: " << m3d_name << " miss texture?" << std::endl;
 		return;
 	}
-	std::cout << m3d_name << " exported OK" << std::endl;
+	std::cout << m3d_name << " to " << b3m_name << " exported OK" << std::endl;
 }
 //
-void m3d_util_b3m_read(std::string m3d_name, ID3D11Device *device)
+void m3d_util_b3m_read(std::string b3m_name, ID3D11Device *device)
 {
 	texture_mgr tex_mgr;
 	tex_mgr.init(device);
 	bin_m3d model_bin;
 	basic_model model_bas;
 	skinned_model model_ski;
-	std::ifstream fin(IMM_PATH["input"]+m3d_name);
+	std::ifstream fin(IMM_PATH["input"]+b3m_name);
 	bool is_open = fin.is_open();
 	fin.close();
 	if (!is_open) {
-		fin.open(IMM_PATH["input"]+m3d_name+".b3m");
+		fin.open(IMM_PATH["input"]+b3m_name+".b3m");
 		is_open = fin.is_open();
 		fin.close();
 		if (!is_open) {
-			std::cout << "ERROR: filename: " << m3d_name << " not found." << std::endl;
+			std::cout << "ERROR: filename: " << b3m_name << " not found." << std::endl;
 			return;
 		}
-		else {
-			m3d_name += ".b3m";
-		}
+		else b3m_name += ".b3m";
 	}
-	bool is_skinned = model_bin.is_skinned(m3d_name);
+	bool is_skinned = model_bin.is_skinned(b3m_name);
+	std::string input_b3m = IMM_PATH["input"]+b3m_name;
 	if (is_skinned) {
-		model_bin.read_from_bin(model_ski, IMM_PATH["output"]+m3d_name, tex_mgr);
+		model_bin.read_from_bin(model_ski, input_b3m, tex_mgr);
 	}
 	else {
-		model_bin.read_from_bin(model_bas, IMM_PATH["output"]+m3d_name, tex_mgr);
+		model_bin.read_from_bin(model_bas, input_b3m, tex_mgr);
 	}
-	std::cout << m3d_name << " tested OK" << std::endl;
+	std::cout << b3m_name << " tested OK" << std::endl;
 }
 }
 #endif

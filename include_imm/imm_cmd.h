@@ -348,15 +348,17 @@ void cmd_shell<T_app>::do_slient_on()
 template <typename T_app>
 void cmd_shell<T_app>::ascii_loading_predefined()
 {
-	// http://patorjk.com/software/taag/
-	// Font Name: Small
 	std::wstring predefined;
-	predefined = L"Craft by Huang Yiting\n";
-	predefined += L"   ___           __ _     _           _  _                      __   ___ _   _            1\n";
-	predefined += L"  / __|_ _ __ _ / _| |_  | |__ _  _  | || |_  _ __ _ _ _  __ _  \\ \\ / (_) |_(_)_ _  __ _  1\n";
-	predefined += L" | (__| '_/ _` |  _|  _| | '_ \\ || | | __ | || / _` | ' \\/ _` |  \\ V /| |  _| | ' \\/ _` | 1\n";
-	predefined += L"  \\___|_| \\__,_|_|  \\__| |_.__/\\_, | |_||_|\\_,_\\__,_|_||_\\__, |   |_| |_|\\__|_|_||_\\__, | 1\n";
-	predefined += L"                               |__/                      |___/                     |___/  1\n";
+	predefined = L"immature engine\n";
+	predefined += L"  _                           _                                     _             `\n";
+	predefined += L" (_)                         | |                                   (_)            `\n";
+	predefined += L"  _ _ __ ___  _ __ ___   __ _| |_ _   _ _ __ ___    ___ _ __   __ _ _ _ __   ___  `\n";
+	predefined += L" | | '_ ` _ \\| '_ ` _ \\ / _` | __| | | | '__/ _ \\  / _ \\ '_ \\ / _` | | '_ \\ / _ \\ `\n";
+	predefined += L" | | | | | | | | | | | | (_| | |_| |_| | | |  __/ |  __/ | | | (_| | | | | |  __/ `\n";
+	predefined += L" |_|_| |_| |_|_| |_| |_|\\__,_|\\__|\\__,_|_|  \\___|  \\___|_| |_|\\__, |_|_| |_|\\___| `\n";
+	predefined += L"                                                               __/ |              `\n";
+	predefined += L"                                                              |___/               `\n";
+	// http://patorjk.com/software/taag/#p=display&f=Big&t=immature%20engine
 	input_loading.assign(predefined);
 }
 //

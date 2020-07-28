@@ -91,7 +91,7 @@ void imm_app::update_scene(float dt)
 	m_Scene.update_atmosphere(dt);
 	m_AiAttr.update(dt);
 	m_AiInterf.update(dt);
-	m_SfxSelect.update();
+	m_SfxSelect.update(dt);
 }
 //
 void imm_app::update_scene_keydown(float dt)

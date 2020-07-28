@@ -61,21 +61,6 @@ Those two types both can be read by engine.
 * **simple_scene**: A very simple scene draw 4 basic geometrics. 
 [(Screen Capture)](https://github.com/endrollex/imm_engine/tree/master/sample/simple_scene/simple_scene.png)
 
-Runtime Folder Tree:
---------------------
-See sample\simple_scene\, represents following tree.
-
-	 |--media
-	 |--model
-	 |--shader
-	 |--texture
-	 |--script
-         |--library
-	     |--scene_common
-	     |--scene00
-	     |--text_en
-
-
 Asset Tools:
 ------------
 * **[immature Blender export](https://github.com/endrollex/imm_blender_export)**: 
