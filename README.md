@@ -1,11 +1,11 @@
-immature engine
-==============
-immature engine.
+immature engine deprecated
+==========================
+Experimental project
 
 Introduction:
 -------------
-This repository is just a technic showcase.
-Maybe not continue.
+DX 11 indie game engine.
+Development stopped.
 
 Features:
 ---------
@@ -14,22 +14,20 @@ Features:
 the [DirectX 11 book](http://www.d3dcoder.net/d3d11.htm) by Frank Luna.
 * Little document.
 * Single core.
-* Scribble.
 
 Compile Environment:
 --------------------
-Win 10  
+Win 10/11  
 Visual Studio 2019  
 DirectX SDK (June 2010)  
 
 Runtime Environment:
 --------------------
-Win 10  
+Win 10/11  
 DirectX End-User Runtimes (June 2010)  
 Visual C++ Redistributable for Visual Studio 2019  
-DirectX 11 capable GPU  
-1024X768 minimum display resolution  
-DirectX 9.0c compliant sound card  
+DirectX 11 Compatible GPU  
+DirectX 9.0c Compatible Sound Card  
 
 Dependent .Lib Files:
 ---------------------
@@ -42,7 +40,7 @@ Dependent .Lib Files:
 * **X3DAudio.lib**: [DirectX SDK (June 2010)](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
 * **XAPOFX.lib**: [DirectX SDK (June 2010)](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
 * **d3d11book.lib**: Derivative work form DX11 book by Frank Luna. 
-[Currently this is unlicensed](https://github.com/d3dcoder/d3d12book/issues/20), unfortunately can not pubic the source code. 
+[Currently this is unlicensed](https://github.com/d3dcoder/d3d12book/issues/20), can not pubic the source code. 
 
 Compile:
 --------
@@ -52,8 +50,8 @@ cl /EHsc /MDd /Z7 /W4 /fp:fast /bigobj
 Relase:  
 cl /EHsc /MD /Ox /W4 /fp:fast /GL  
 
-Sample and Tool:
-----------------
+Samples:
+--------
 In sample\ folder, every subfolder include a signle sample.
 * **init_d3d**: A basic window draw empty.
 * **m3dtob3m**: Command line tool, convert text .m3d model file to binary .b3m file. 
@@ -69,4 +67,4 @@ Export Blender model data to .m3d file format for immature engine.
 Convert .m3d file to binary .b3m file. 
 Notice .b3m file corresponding x64/x86 version.
 * **CSV based scene data**: 
-You may write a game object by Excel, this limits the complexity of a scene.
+Use Excel to edit game scenes.
