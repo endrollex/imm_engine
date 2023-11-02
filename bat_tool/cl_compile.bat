@@ -1,11 +1,10 @@
-::edit the path
-::
-@if not "%IMM_SET%"=="1" set IMM_INCLUDE=%IMM_INCLUDE%;D:\Ashlotte\include_imm;
-@if not "%IMM_SET%"=="1" set IMM_INCLUDE=%IMM_INCLUDE%D:\Ashlotte\include_d3d11book;
-@if not "%IMM_SET%"=="1" set IMM_INCLUDE=%IMM_INCLUDE%D:\Ashlotte\include_dependent;
-@if not "%IMM_SET%"=="1" set IMM_LIB=%IMM_LIB%;D:\Ashlotte\lib_binary;
+@if not "%IMM_SET%"=="1" set IMM_WORK=D:\Ashlotte
+@if not "%IMM_SET%"=="1" set IMM_INCLUDE=;%IMM_WORK%\include_imm;
+@if not "%IMM_SET%"=="1" set IMM_INCLUDE=%IMM_INCLUDE%%IMM_WORK%\include_d3d11book;
+@if not "%IMM_SET%"=="1" set IMM_INCLUDE=%IMM_INCLUDE%%IMM_WORK%\include_dependent;
 @if not "%IMM_SET%"=="1" set IMM_INCLUDE=%IMM_INCLUDE%C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;
 @if not "%IMM_SET%"=="1" set INCLUDE=%INCLUDE%%IMM_INCLUDE%
+@if not "%IMM_SET%"=="1" set IMM_LIB=;%IMM_WORK%\lib_binary;
 @if not "%IMM_SET%"=="1" set LIB=%LIB%%IMM_LIB%
 @set IMM_SET=1
 ::Debug
