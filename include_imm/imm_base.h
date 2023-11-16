@@ -126,6 +126,15 @@ base_win<DERIVED_TYPE>::base_win():
 template <class DERIVED_TYPE>
 base_win<DERIVED_TYPE>::~base_win()
 {
+#if defined(DEBUG) || defined(_DEBUG)
+	ID3D11Debug *d3d_debug;
+	HRESULT hr = m_D3DDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3d_debug));
+	if (SUCCEEDED(hr))
+	{
+		hr = d3d_debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	}
+	RELEASE_COM(d3d_debug);
+#endif
 	RELEASE_COM(m_RenderTargetView);
 	RELEASE_COM(m_DepthStencilView);
 	RELEASE_COM(m_SwapChain);
