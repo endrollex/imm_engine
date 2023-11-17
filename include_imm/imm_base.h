@@ -126,15 +126,7 @@ base_win<DERIVED_TYPE>::base_win():
 template <class DERIVED_TYPE>
 base_win<DERIVED_TYPE>::~base_win()
 {
-#if defined(DEBUG) || defined(_DEBUG)
-	ID3D11Debug *d3d_debug;
-	HRESULT hr = m_D3DDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3d_debug));
-	if (SUCCEEDED(hr))
-	{
-		hr = d3d_debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
-	}
-	RELEASE_COM(d3d_debug);
-#endif
+	OutputDebugString(L"IMM ~base_win");
 	RELEASE_COM(m_RenderTargetView);
 	RELEASE_COM(m_DepthStencilView);
 	RELEASE_COM(m_SwapChain);
@@ -142,11 +134,23 @@ base_win<DERIVED_TYPE>::~base_win()
 	// Restore all default settings.
 	if (m_D3DDC) m_D3DDC->ClearState();
 	RELEASE_COM(m_D3DDC);
-	RELEASE_COM(m_D3DDevice);
+	//RELEASE_COM(m_D3DDevice);
 	// D2D Release
 	RELEASE_COM(m_D2DDevice);
 	RELEASE_COM(m_D2DDC);
 	RELEASE_COM(m_D2DTargetBitmap);
+#if defined(DEBUG) || defined(_DEBUG)
+	ID3D11Debug *d3d_debug;
+	HRESULT hr = m_D3DDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3d_debug));
+	if (SUCCEEDED(hr))
+	{
+		HR(d3d_debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL));
+		OutputDebugString(L"IMM ReportLiveDeviceObjects");
+	}
+	RELEASE_COM(d3d_debug);
+#endif
+	RELEASE_COM(m_D3DDevice);
+	OutputDebugString(L"IMM quit");
 }
 //
 template <class DERIVED_TYPE>
@@ -166,6 +170,7 @@ LRESULT CALLBACK base_win<DERIVED_TYPE>::WindowProc(HWND hwnd, UINT uMsg, WPARAM
 template <class DERIVED_TYPE>
 BOOL base_win<DERIVED_TYPE>::init_win()
 {
+	OutputDebugString(L"IMM init_win");
 	// DPI in game always 96.0f, UI corresponding screen's height and width, not only DPI
 	assert(SetProcessDPIAware());
 	// WNDCLASS

@@ -1,10 +1,26 @@
-cl_compile.bat:
-The compile options see bat_tool\cl_compile.bat
-Modify the bat file according to the include/lib path.
+[Run 1.bat with x64 Native Tools Command Prompt]
 
-Setting the Path and Environment Variables for Command-Line Builds
-http://msdn.microsoft.com/en-us/library/f2ccy3wt.aspx
-
-lua_build.bat:
-Build Lua.
-Test OK for Lua 5.3.5
+|
++---work_dir
+|   +---sample_dir
+|   |       main.cc
+|   |       lua.dll
+|   |       1.bat <--- [Compile Command]
+|   |       ...
+|   |
+|   +---include_d3d11book
+|   |       xxx.h
+|   |       ...
+|   |
+|   +---include_dependent
+|   |       xxx.h
+|   |       ...
+|   |
+|   +---include_imm
+|   |       xxx.h
+|   |       ...
+|   |
+|   +---lib_binary
+|   |       xxx.lib
+|   |       ...
+|   |

@@ -18,7 +18,7 @@ the [DirectX 11 book](http://www.d3dcoder.net/d3d11.htm) by Frank Luna.
 Compile Environment:
 --------------------
 Win 10/11  
-Visual Studio 2019  
+Visual Studio 2019/2022  
 DirectX SDK (June 2010)  
 
 Runtime Environment:
@@ -32,7 +32,7 @@ DirectX 9.0c Compatible Sound Card
 Dependent .Lib Files:
 ---------------------
 * **DirectXTK.lib**: [DirectX Tool Kit](https://github.com/Microsoft/DirectXTK)
-* **DirectXTKAudioDX.lib**: [DirectX Tool Kit](https://github.com/Microsoft/DirectXTK)
+* **DirectXTKAudioWin8.lib**: [DirectX Tool Kit](https://github.com/Microsoft/DirectXTK)
 * **Effects11.lib**: [Effects for Direct3D 11](https://github.com/Microsoft/FX11), Debug version please rename.
 * **lua.lib**: [Lua](https://www.lua.org/)
 * **XInput1_3.lib**: Its orgin name is XInput.lib, from 
@@ -44,11 +44,7 @@ Dependent .Lib Files:
 
 Compile:
 --------
-* **Microsoft (R) C/C++ Optimizing Compiler**:  
-Debug:  
-cl /EHsc /MDd /Z7 /W4 /fp:fast /bigobj  
-Relase:  
-cl /EHsc /MD /Ox /W4 /fp:fast /GL  
+View the folder "bat_tool".  
 
 Samples:
 --------
@@ -59,7 +55,7 @@ Those two types both can be read by engine.
 * **simple_scene**: A very simple scene draw 4 basic geometrics. 
 [(Screen Capture)](https://github.com/endrollex/imm_engine/tree/master/sample/simple_scene/simple_scene.png)
 
-Asset Tools:
+Tools:
 ------------
 * **[immature Blender export](https://github.com/endrollex/imm_blender_export)**: 
 Export Blender model data to .m3d file format for immature engine.
@@ -67,10 +63,11 @@ Export Blender model data to .m3d file format for immature engine.
 Convert .m3d file to binary .b3m file. 
 Notice .b3m file corresponding x64/x86 version.
 * **CSV based scene data**: 
-Use Excel to edit game scenes.
+Use Excel to edit game scenes.  
+* **DebugView**: (from Microsoft -> Sysinternals -> DebugView)
 
 Known Issues:
 -------------
 This is an abandoned project, complex problem will not be fixed.  
-The ALT-ENTER state cannot be reversed.  
-Many memory leaks may be caused by not properly releasing DirectX objects. （ID3D11Debug::ReportLiveDeviceObjects）
+  DXGI WARNING: IDXGIFactory::CreateSwapChain: Blt-model swap effects are legacy swap effects.  
+ D3D11 WARNING: ID3D11DepthStencilState::SetPrivateData: Existing private data of same name with different size found!  

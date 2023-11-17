@@ -1,4 +1,8 @@
-@if not "%IMM_SET%"=="1" set IMM_WORK=D:\Ashlotte
+@if not "%IMM_SET%"=="1" set IMM_WORK=%cd%
+:loop
+@if not "%IMM_SET%"=="1" set IMM_WORK=%IMM_WORK:~0,-1%
+@if not "%IMM_SET%"=="1" if not "%IMM_WORK:~-2,-1%"=="\" goto :loop
+@if not "%IMM_SET%"=="1" set IMM_WORK=%IMM_WORK:~0,-2%
 @if not "%IMM_SET%"=="1" set IMM_INCLUDE=;%IMM_WORK%\include_imm;
 @if not "%IMM_SET%"=="1" set IMM_INCLUDE=%IMM_INCLUDE%%IMM_WORK%\include_d3d11book;
 @if not "%IMM_SET%"=="1" set IMM_INCLUDE=%IMM_INCLUDE%%IMM_WORK%\include_dependent;

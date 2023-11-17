@@ -19,6 +19,8 @@
 #include "d3dx11effect.h"
 #include <DirectXMath.h>
 using namespace DirectX;
+#include <wrl.h>
+using Microsoft::WRL::ComPtr;
 namespace imm
 {
 ////////////////

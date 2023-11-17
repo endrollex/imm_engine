@@ -204,7 +204,7 @@ void ui_def_dialogue<T_app>::define_sprite_build_buffer()
 	m_MapSpriteName["test_sprite"] = "";
 	m_MapSpriteName["test_zz_background_img"] = "";
 	//
-	if (m_Sprite.map_tex.count("backg_img")) {
+	if (m_Sprite.buffer_check("backg_img")) {
 		m_MapSpriteName["test_zz_background_img"] = "backg_img";
 	}
 	//

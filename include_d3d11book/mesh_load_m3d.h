@@ -68,11 +68,11 @@ public:
 	void init(ID3D11Device *device);
 	ID3D11ShaderResourceView *create_texture(std::wstring tex_path, std::wstring filename);
 	ID3D11ShaderResourceView *create_texture(std::wstring filename, uint8_t *buffer, const size_t &length);
+	std::map<std::wstring, ComPtr<ID3D11ShaderResourceView>> m_TextureSRV;
 private:
 	texture_mgr(const texture_mgr &rhs);
 	texture_mgr &operator=(const texture_mgr &rhs);
-	ID3D11Device *m_D3DDevice;
-	std::map<std::wstring, ID3D11ShaderResourceView*> m_TextureSRV;
+	ComPtr<ID3D11Device> m_D3DDevice;
 };
 //
 }

@@ -19,7 +19,7 @@
 #pragma comment(lib, "D2d1")
 #pragma comment(lib, "Dwrite")
 #pragma comment(lib, "DirectXTK")
-#pragma comment(lib, "DirectXTKAudioDX")
+#pragma comment(lib, "DirectXTKAudioWin8")
 #pragma comment(lib, "Effects11")
 #pragma comment(lib, "lua")
 #pragma comment(lib, "Xinput1_3")

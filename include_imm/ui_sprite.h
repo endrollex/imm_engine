@@ -56,6 +56,7 @@ struct sprite_simple
 	~sprite_simple();
 	void init(ID3D11Device *device, ID3D11DeviceContext *device_context);
 	void build_buffer(const std::vector<std::vector<std::string>> &get_dds);
+	bool buffer_check(const std::string &name);
 	void draw_d3d(
 		const std::map<std::string, size_t> &map_sprite_rect,
 		const std::vector<ui_rect> &rect,
@@ -65,7 +66,7 @@ struct sprite_simple
 	std::unique_ptr<SpriteFont> sprite_font;
 	std::unique_ptr<CommonStates> states;
 	texture_mgr tex_mgr;
-	std::map<std::string, ID3D11ShaderResourceView*> map_tex;
+	std::map<std::string, std::wstring> map_name;
 	std::map<std::string, XMFLOAT2> map_pos;
 	std::map<std::string, float> map_height;
 	float scale;
@@ -88,7 +89,7 @@ sprite_simple::sprite_simple():
 //
 sprite_simple::~sprite_simple()
 {
-	; //tex_mgr will kill ID3D11ShaderResourceView*
+	;
 }
 //
 void sprite_simple::init(ID3D11Device *device, ID3D11DeviceContext *device_context)
@@ -99,22 +100,29 @@ void sprite_simple::init(ID3D11Device *device, ID3D11DeviceContext *device_conte
 }
 void sprite_simple::build_buffer(const std::vector<std::vector<std::string>> &get_dds)
 {
-	ID3D11Resource *res = nullptr;
-	ID3D11Texture2D *texture2d = nullptr;
 	D3D11_TEXTURE2D_DESC desc;
 	std::wstring tex_path = txtutil::str_to_wstr(IMM_PATH["texture"]+"avatar\\");
 	for (size_t ix = 0; ix != get_dds.size(); ++ix) {
+		ID3D11Resource *res = nullptr;
+		ID3D11Texture2D *texture2d = nullptr;
 		std::wstring dds_name = txtutil::str_to_wstr(get_dds[ix][1]);
-		map_tex[get_dds[ix][0]] = tex_mgr.create_texture(tex_path, dds_name);
+		map_name[get_dds[ix][0]] = dds_name;
+		tex_mgr.create_texture(tex_path, dds_name);
 		// dds: 1024*1024, 1024*2048, 2048*2048
-		map_tex[get_dds[ix][0]]->GetResource(&res);
+		tex_mgr.m_TextureSRV[dds_name]->GetResource(&res);
 		HR(res->QueryInterface(&texture2d));
 		texture2d->GetDesc(&desc);
 		map_height[get_dds[ix][0]] = static_cast<float>(desc.Height);
+		RELEASE_COM(res);
+		RELEASE_COM(texture2d);
 	}
-    RELEASE_COM(res);
-    RELEASE_COM(texture2d);
-	if (map_tex.size() > 0) is_built = true;
+	if (tex_mgr.m_TextureSRV.size() > 0) is_built = true;
+}
+//
+bool sprite_simple::buffer_check(const std::string &name)
+{
+	if (map_name.find(name) == map_name.end()) return false;
+	return (tex_mgr.m_TextureSRV.find(map_name[name]) != tex_mgr.m_TextureSRV.end());
 }
 //
 void sprite_simple::draw_d3d(
@@ -128,9 +136,9 @@ void sprite_simple::draw_d3d(
 	for (auto &map: map_sprite_rect) {
 		if (rect[map.second].active) {
 			const std::string *s_name = &map_sprite_name.at(map.first);
-			assert(map_tex.count(*s_name));
+			assert(buffer_check(*s_name));
 			sprite_batch->Draw(
-				map_tex[*s_name],
+				tex_mgr.m_TextureSRV[map_name[*s_name]].Get(),
 				map_pos[*s_name],
 				nullptr,
 				Colors::White,
