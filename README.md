@@ -68,6 +68,6 @@ Use Excel to edit game scenes.
 
 Known Issues:
 -------------
-This is an abandoned project, complex problem will not be fixed.  
-  DXGI WARNING: IDXGIFactory::CreateSwapChain: Blt-model swap effects are legacy swap effects.  
- D3D11 WARNING: ID3D11DepthStencilState::SetPrivateData: Existing private data of same name with different size found!  
+* This is an abandoned project, complex problem will not be fixed.  
+* DXGI WARNING: Blt-model swap effects are legacy swap effects.  
+* Alt+Tab is not working properly in fullscreen mode.  

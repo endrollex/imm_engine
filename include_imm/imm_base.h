@@ -307,6 +307,8 @@ bool base_win<DERIVED_TYPE>::init_d3d()
 	IDXGIFactory2 *dxgi_factory = 0;
 	HR(dxgi_adapter->GetParent(IID_PPV_ARGS(&dxgi_factory)));
 	HR(dxgi_factory->CreateSwapChainForHwnd(m_D3DDevice, m_hwnd, &sd, nullptr, nullptr, &m_SwapChain));
+	// fullscreen alt+tab not working properly
+	HR(dxgi_factory->MakeWindowAssociation(m_hwnd, DXGI_MWA_NO_ALT_ENTER));
 	m_DXGIPresentPara.DirtyRectsCount = 0;
 	m_DXGIPresentPara.pDirtyRects     = nullptr;
 	m_DXGIPresentPara.pScrollRect     = nullptr;
@@ -318,7 +320,7 @@ bool base_win<DERIVED_TYPE>::init_d3d()
 		HR(d2d_factory->CreateDevice(dxgi_device, &m_D2DDevice));
 		// warning C4996: 'ID2D1Factory::GetDesktopDpi': Deprecated. 
 		//d2d_factory->GetDesktopDpi(&m_DpiX, &m_DpiY);
-		m_DpiX = static_cast<float>(GetDpiForWindow(get_hwnd()));
+		m_DpiX = static_cast<float>(GetDpiForWindow(m_hwnd));
 		m_DpiY = m_DpiX;
 		m_D2DBitMapProp =
 			D2D1::BitmapProperties1(
@@ -423,8 +425,6 @@ void base_win<DERIVED_TYPE>::on_resize()
 	depth_stencil_desc.MiscFlags              = 0;
 	HR(m_D3DDevice->CreateTexture2D(&depth_stencil_desc, 0, &m_DepthStencilBuffer));
 	HR(m_D3DDevice->CreateDepthStencilView(m_DepthStencilBuffer, 0, &m_DepthStencilView));
-	// Bind the render target view and depth/stencil view to the pipeline.
-	m_D3DDC->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
 	// Set the viewport transform.
 	m_ScreenViewport.TopLeftX = 0;
 	m_ScreenViewport.TopLeftY = 0;

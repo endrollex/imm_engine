@@ -71,6 +71,8 @@ struct sprite_simple
 	std::map<std::string, float> map_height;
 	float scale;
 	bool is_built;
+	//
+	ComPtr<ID3D11DepthStencilState> dummy_depth;
 private:
 	sprite_simple(const sprite_simple &rhs);
 	sprite_simple &operator=(const sprite_simple &rhs);
@@ -97,6 +99,11 @@ void sprite_simple::init(ID3D11Device *device, ID3D11DeviceContext *device_conte
 	sprite_batch = std::unique_ptr<SpriteBatch>(new SpriteBatch(device_context));
 	states = std::unique_ptr<CommonStates>(new CommonStates(device));
 	tex_mgr.init(device);
+	// avoid SpriteBatch D3D11 WARNING
+	D3D11_DEPTH_STENCIL_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	desc.DepthEnable = false;
+	device->CreateDepthStencilState(&desc, &dummy_depth);
 }
 void sprite_simple::build_buffer(const std::vector<std::vector<std::string>> &get_dds)
 {
@@ -131,7 +138,8 @@ void sprite_simple::draw_d3d(
 	const std::map<std::string, std::string> &map_sprite_name)
 {
 	if (!is_built) return;
-	sprite_batch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+	//sprite_batch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied());
+	sprite_batch->Begin(SpriteSortMode_Deferred, states->NonPremultiplied(), nullptr, dummy_depth.Get());
 	// Draw sprite according UI rect active
 	for (auto &map: map_sprite_rect) {
 		if (rect[map.second].active) {
@@ -145,6 +153,7 @@ void sprite_simple::draw_d3d(
 				0,
 				XMFLOAT2(0.0f, 0.0f),
 				scale);
+			//
 		}
 	}
 	sprite_batch->End();
