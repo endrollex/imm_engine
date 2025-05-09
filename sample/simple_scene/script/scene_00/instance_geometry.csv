@@ -1,0 +1,5 @@
+name,model,scale,rotation,pos_x,pos_y,pos_z
+grid,grid,1,0,0,0,0
+box,box,1,0,0,10,0
+cylinder,cylinder,1,0,-7,10,-15
+sphere,sphere,1,0,-5,10,15
